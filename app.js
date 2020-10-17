@@ -24,7 +24,7 @@ app.use( express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/pages', pageRouter);
-app.use('/admin', adminPageRouter);
+app.use('/admin/pages', adminPageRouter);
 
 /*
   /// parse app/x-www-form-urlencoded
@@ -37,20 +37,8 @@ app.use('/admin', adminPageRouter);
 
 
 
-app.use(function(req, res, next) {
-  next(createError(404));
-});
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
 
 const config = require('./config/config')
 mongoose.connect(config.db,    {useNewUrlParser: true, useUnifiedTopology: true})
@@ -87,10 +75,39 @@ app.use(expressValidator({
       }
   }
 }))*/
+
 // Express messages
+// set global error v araible
+app.locals.errors = null;
+
+
 app.use(require('connect-flash')());
+
 app.use(function (req, res, next) {
+  console.log("locals.messages handler midlewar "  )
+  req.flash('success', "hello flash");
   res.locals.messages = require('express-messages')(req, res);
+  req.flash('success', "hello flash");
   next();
 });
+
+
+app.use(function(req, res, next) {
+  console.log("createError handler midlewar "  )
+
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  console.log("error handler midlewar "  )
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
 module.exports = app;
